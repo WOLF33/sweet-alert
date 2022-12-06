@@ -8,7 +8,6 @@ class SweetAlertNotifier
     const ICON_ERROR = 'error';
     const ICON_SUCCESS = 'success';
     const ICON_INFO = 'info';
-    const TIMER_MILLISECONDS = 1800;
 
     /**
      * @var \UxWeb\SweetAlert\SessionStore
@@ -20,7 +19,7 @@ class SweetAlertNotifier
      *
      * @var array
      */
-    protected $config;
+    protected $config = [];
 
     protected $defaultButtonConfig = [
         'text'       => '',
@@ -37,9 +36,9 @@ class SweetAlertNotifier
      */
     public function __construct(SessionStore $session)
     {
-        $this->setDefaultConfig();
-
         $this->session = $session;
+
+        $this->setDefaultConfig();
     }
 
     /**
@@ -49,14 +48,14 @@ class SweetAlertNotifier
      */
     protected function setDefaultConfig()
     {
-        $this->config = [
-            'timer'   => config('sweet-alert.autoclose', self::TIMER_MILLISECONDS),
-            'text'    => '',
+        $this->setConfig([
+            'timer' => config('sweet-alert.autoclose'),
+            'text' => '',
             'buttons' => [
-                'cancel'  => false,
+                'cancel' => false,
                 'confirm' => false,
             ],
-        ];
+        ]);
     }
 
     /**
@@ -74,16 +73,14 @@ class SweetAlertNotifier
     {
         $this->config['text'] = $text;
 
-        if (!is_null($title)) {
+        if (! is_null($title)) {
             $this->config['title'] = $title;
         }
 
-        if (!is_null($icon)) {
+        if (! is_null($icon)) {
             $this->config['icon'] = $icon;
         }
-
         $this->flashConfig();
-
         return $this;
     }
 
@@ -171,11 +168,9 @@ class SweetAlertNotifier
      */
     public function autoclose($milliseconds = null)
     {
-        if (!is_null($milliseconds)) {
+        if (! is_null($milliseconds)) {
             $this->config['timer'] = $milliseconds;
         }
-
-        $this->flashConfig();
 
         return $this;
     }
@@ -223,15 +218,14 @@ class SweetAlertNotifier
         $this->config['buttons'][$key] = array_merge(
             $this->defaultButtonConfig,
             [
-                'text'    => $buttonText,
+                'text' => $buttonText,
                 'visible' => true,
             ],
             $overrides
         );
 
-        $this->config['closeOnClickOutside'] = false;
+        $this->closeOnClickOutside(false);
         $this->removeTimer();
-        $this->flashConfig();
 
         return $this;
     }
@@ -246,8 +240,6 @@ class SweetAlertNotifier
     public function closeOnClickOutside($value = true)
     {
         $this->config['closeOnClickOutside'] = $value;
-
-        $this->flashConfig();
 
         return $this;
     }
@@ -264,7 +256,6 @@ class SweetAlertNotifier
         $this->addButton('confirm', $buttonText);
         $this->config['allowOutsideClick'] = false;
         $this->removeTimer();
-        $this->flashConfig();
 
         return $this;
     }
@@ -291,9 +282,8 @@ class SweetAlertNotifier
     public function html()
     {
         $this->config['content'] = $this->config['text'];
-        unset($this->config['text']);
 
-        $this->flashConfig();
+        unset($this->config['text']);
 
         return $this;
     }
@@ -305,6 +295,8 @@ class SweetAlertNotifier
      */
     protected function flashConfig()
     {
+        $this->session->remove('sweet_alert');
+
         foreach ($this->config as $key => $value) {
             $this->session->flash("sweet_alert.{$key}", $value);
         }
@@ -347,8 +339,6 @@ class SweetAlertNotifier
     {
         $this->config = array_merge($this->config, $config);
 
-        $this->flashConfig();
-
         return $this;
     }
 
@@ -360,5 +350,15 @@ class SweetAlertNotifier
     public function getJsonConfig()
     {
         return $this->buildJsonConfig();
+    }
+
+    /**
+     * Handle the object's destruction.
+     *
+     * @return void
+     */
+    public function __destruct()
+    {
+        $this->flashConfig();
     }
 }
