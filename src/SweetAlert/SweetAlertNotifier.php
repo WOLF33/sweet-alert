@@ -22,10 +22,10 @@ class SweetAlertNotifier
     protected $config = [];
 
     protected $defaultButtonConfig = [
-        'text' => '',
-        'visible' => false,
-        'value' => null,
-        'className' => '',
+        'text'       => '',
+        'visible'    => false,
+        'value'      => null,
+        'className'  => '',
         'closeModal' => true,
     ];
 
@@ -254,7 +254,7 @@ class SweetAlertNotifier
     public function persistent($buttonText = 'OK')
     {
         $this->addButton('confirm', $buttonText);
-        $this->closeOnClickOutside(false);
+        $this->config['allowOutsideClick'] = false;
         $this->removeTimer();
 
         return $this;

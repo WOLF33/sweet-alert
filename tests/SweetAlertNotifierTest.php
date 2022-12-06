@@ -235,7 +235,6 @@ class SweetAlertNotifierTest extends TestCase
     {
         $session = m::mock(SessionStore::class);
         $session->shouldReceive('flash')->atLeast(1);
-        $session->shouldReceive('remove')->atLeast(1);
         $notifier = new SweetAlertNotifier($session);
 
         $notifier->warning('Are you sure?', 'Delete all posts')->persistent('I\'m sure');
@@ -243,7 +242,7 @@ class SweetAlertNotifierTest extends TestCase
         $this->assertArraySubset(
             [
                 'confirm' => [
-                    'text' => 'I\'m sure',
+                    'text'    => 'I\'m sure',
                     'visible' => true,
                 ],
             ],
@@ -273,10 +272,7 @@ class SweetAlertNotifierTest extends TestCase
         $notifier = new SweetAlertNotifier($session);
 
         $notifier->basic('Basic Alert!', 'Alert')->confirmButton('help!');
-
-        $this->assertArraySubset(
-            [
-                'text' => 'help!',
+        $this->assertArraySubset[
                 'visible' => true,
             ],
             $notifier->getConfig('buttons')['confirm']
@@ -330,16 +326,17 @@ class SweetAlertNotifierTest extends TestCase
         $this->assertArraySubset(
             [
                 'credit_card' => [
-                    'text' => 'Credit Card',
+                    'text'    => 'Credit Card',
                     'visible' => true,
                 ],
                 'paypal' => [
-                    'text' => 'Paypal',
+                    'text'    => 'Paypal',
                     'visible' => true,
                 ],
             ],
             $notifier->getConfig('buttons')
         );
+
         $this->assertFalse($notifier->getConfig('closeOnClickOutside'));
     }
 
